@@ -12,7 +12,8 @@ export const Logger = (function({ engine }) {
 
   return {
     log: withTime('log'),
-    debug: withTime('debug')
+    debug: withTime('debug'),
+    error: withTime('error')
   }
 })({ engine: console })
 
