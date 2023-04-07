@@ -21,7 +21,10 @@ export async function sendRequest({
 
   const response = await fetch(url, options)
   const text = await response.text()
-  const json = text && JSON.parse(text)
+  let json
+  try {
+    json = text && JSON.parse(text)
+  } catch (error) { }
 
   if (response.ok) return json
 
@@ -29,6 +32,6 @@ export async function sendRequest({
   return Promise.reject({
     ok: false,
     status: response.status,
-    message:  expectMessage || (json && json.message) || response.statusText,
+    message: expectMessage || (json && json.message) || response.statusText,
   })
 }
