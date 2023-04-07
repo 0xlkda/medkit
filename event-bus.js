@@ -7,6 +7,10 @@ class EventBus {
     this.#eventTarget = this.#env.appendChild(this.#env.createComment(description))
   }
 
+  getTargetEvent() {
+    return this.#eventTarget
+  }
+
   on(type, listener) {
     this.#eventTarget.addEventListener(type, listener)
     return () => this.off(type, listener)
