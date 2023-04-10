@@ -17,4 +17,11 @@ export const Logger = (function({ engine }) {
   }
 })({ engine: console })
 
-
+export function logFunctionArgs(target, method, logger = Logger) {
+  return ((originMethod) => {
+    return function() {
+      logger.log(...arguments)
+      return originMethod.apply(this, arguments)
+    }
+  })(target[method])
+}
