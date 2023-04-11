@@ -1,10 +1,10 @@
 export async function sendRequest({
-  url,
-  method,
-  useCredentials = false,
-  body,
   headers = {},
-  queryParams = {},
+  method,
+  url,
+  queryParams,
+  body,
+  useCredentials = false,
   expectMessage = ''
 }) {
   const options = {
