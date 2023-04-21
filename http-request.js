@@ -7,6 +7,8 @@ export async function sendRequest({
   useCredentials = false,
   expectMessage = ''
 }) {
+  if (!url) throw new Error('url is undefined')
+
   const options = {
     method: method,
     headers: new Headers({ 'content-type': 'application/json', ...headers }),
@@ -21,7 +23,8 @@ export async function sendRequest({
 
   const response = await fetch(url, options)
   const text = await response.text()
-  let json
+
+  let json = {}
   try {
     json = text && JSON.parse(text)
   } catch (error) { }

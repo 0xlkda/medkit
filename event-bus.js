@@ -39,7 +39,7 @@ function createBrowserEventTarget(name) {
   return document.appendChild(document.createComment(name))
 }
 
-export function createEventBus(name, env, options = {}) {
+export function createMessageBus(name, env, options = {}) {
   switch (env) {
     case 'browser': {
       const eventTarget = createBrowserEventTarget(name)
