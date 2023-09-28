@@ -2,20 +2,18 @@ import { logFunctionArgs } from './logger'
 
 class EventBus {
   #eventTarget
+  #listeners
 
   constructor(eventTarget) {
     this.#eventTarget = eventTarget
-  }
-
-  getTargetEvent() {
-    return this.#eventTarget
+    this.#listeners = []
   }
 
   on(type, listener, options = {}) {
-    this.getTargetEvent().addEventListener(type, listener, options)
-    return () => {
-      this.off(type, listener)
-    }
+    const off = () => this.off(type, listener)
+    this.#listeners.push(off)
+    this.#eventTarget.addEventListener(type, listener, options)
+    return off
   }
 
   once(type, listener) {
@@ -23,11 +21,19 @@ class EventBus {
   }
 
   off(type, listener) {
-    this.getTargetEvent().removeEventListener(type, listener)
+    if (!type) {
+      this.#listeners.forEach(off => off())
+    } else {
+      this.#eventTarget.removeEventListener(type, listener)
+    }
   }
 
   emit(type, detail) {
-    this.getTargetEvent().dispatchEvent(new CustomEvent(type, { detail }))
+    this.#eventTarget.dispatchEvent(new CustomEvent(type, { detail }))
+  }
+
+  dispatch(type, detail) {
+    return this.emit(type, detail)
   }
 
   lazyEmit(type) {
@@ -35,24 +41,27 @@ class EventBus {
   }
 }
 
+const eventHubs = new Map()
+
 function createBrowserEventTarget(name) {
-  return document.appendChild(document.createComment(name))
+  if (eventHubs.has(name)) {
+    return eventHubs.get(name)
+  }
+  const element = eventHubs.set(name, document.createComment(name)).get(name)
+  return document.appendChild(element)
 }
 
-export function createMessageBus(name, env, options = {}) {
-  switch (env) {
-    case 'browser': {
-      const eventTarget = createBrowserEventTarget(name)
-      const bus = new EventBus(eventTarget)
+export function createMessageBus(name, env = 'browser', options = {}) {
+  if (env === 'browser') {
+    const target = createBrowserEventTarget(name)
+    const bus = new EventBus(target)
 
-      if (options.logEmit) {
-        bus.emit = logFunctionArgs(bus, 'emit', options.logger)
-      }
-
-      return bus
+    if (options.logEmit) {
+      bus.emit = logFunctionArgs(bus, 'emit', options.logger)
     }
 
-    default:
-      throw new Error('not implemented')
+    return bus
   }
+
+  throw new Error('not implemented')
 }
